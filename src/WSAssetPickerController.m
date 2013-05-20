@@ -39,21 +39,33 @@
 
 
 #pragma mark - Initialization
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder])
+    {
+        [self configure];
+    }
+    
+    return self;
+}
 
 - (id)initWithDelegate:(id <WSAssetPickerControllerDelegate>)delegate;
 {
-    // Create the Album TableView Controller.
-    WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
-    albumTableViewController.assetPickerState = self.assetPickerState;
-    
-    if ((self = [super initWithRootViewController:albumTableViewController])) {
-        
-        self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-        self.toolbar.barStyle = UIBarStyleBlackTranslucent;
+    if ((self = [super init])) {
+        [self configure];
         self.delegate = delegate;
     }
     
     return self;
+}
+
+- (void)configure
+{
+    WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
+    albumTableViewController.assetPickerState = self.assetPickerState;
+    [self pushViewController:albumTableViewController animated:NO]; // set root view
+    self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+    self.toolbar.barStyle = UIBarStyleBlackTranslucent;
 }
 
 #define STATE_KEY @"state"

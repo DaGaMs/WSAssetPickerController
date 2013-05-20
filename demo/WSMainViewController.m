@@ -49,13 +49,14 @@
     _pageControl = pageControl;
 }
 
-- (IBAction)pick:(id)sender 
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    self.pickerController = [[WSAssetPickerController alloc] initWithDelegate:self];
-    
-    [self presentViewController:self.pickerController animated:YES completion:NULL];
+    if ([segue.identifier isEqualToString:@"showPickerSegue"])
+    {
+        WSAssetPickerController *controller = segue.destinationViewController;
+        controller.delegate = self;
+    }
 }
-
 - (IBAction)changePage:(UIPageControl *)sender
 {
     self.pageControlInUse = YES;

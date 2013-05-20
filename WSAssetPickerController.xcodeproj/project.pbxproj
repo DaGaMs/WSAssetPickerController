@@ -429,6 +429,10 @@
 				GCC_PREFIX_HEADER = "demo/WSAssetPickerController-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/demo/WSAssetPickerController-Info.plist";
 				OTHER_CFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -440,6 +444,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "demo/WSAssetPickerController-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/demo/WSAssetPickerController-Info.plist";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
