@@ -6,7 +6,7 @@ Pod::Spec.new do|s|
     s.homepage = 'https://github.com/w5mith/WSAssetPickerController'
     s.summary="Alternative to UIImagePickerController provides the ability to select multiple images."
     s.description="This is an iOS, Objective-C alternative to UIImagePickerController that looks almost exactly the same, but provides the ability to select multiple images. It's as easy to setup as UIImagePickerController and it works in both portrait and landscape orientations. It requires the addition of AssetsLibrary.framework. This code uses ARC."
-    s.source={:git=>'https://github.com/dagams/WSAssetPickerController.git', :tag => '0.0.1'}
+    s.source={:git=>'https://github.com/dagams/WSAssetPickerController.git', :tag => '0.0.2'}
     s.source_files='src/*.{h,m}'
     s.platform = :ios, 5.0
     s.framework = 'QuartzCore', 'AssetsLibrary', 'UIKit', 'CoreGraphics'
