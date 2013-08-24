@@ -68,7 +68,26 @@
                                                                                            target:self 
                                                                                            action:@selector(cancelButtonAction:)];
     
-    [self.assetPickerState.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+    [self.assetPickerState.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+        
+        // If group is nil, the end has been reached.
+        if (group == nil) {
+            return;
+        }
+        
+        // Add the group to the array.
+        [self.assetGroups addObject:group];
+        
+        // Reload the tableview on the main thread.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [NSObject cancelPreviousPerformRequestsWithTarget:self.tableView];
+            [self.tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.2];
+        });
+        
+    } failureBlock:^(NSError *error) {
+        // TODO: User denied access. Tell them we can't do anything.
+    }];
+    [self.assetPickerState.assetsLibrary enumerateGroupsWithTypes:ALAssetsGroupAll ^ ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
         
         // If group is nil, the end has been reached.
         if (group == nil) {
@@ -84,7 +103,8 @@
         
         // Reload the tableview on the main thread.
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.tableView reloadData];
+            [NSObject cancelPreviousPerformRequestsWithTarget:self.tableView];
+            [self.tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.2];
         });
         
     } failureBlock:^(NSError *error) {

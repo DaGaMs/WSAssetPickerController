@@ -42,21 +42,20 @@
 {
     if (self = [super initWithCoder:aDecoder])
     {
-        [self configure];
+        [self configureWithAssetsLibrary:[ALAssetsLibrary new]];
     }
     
     return self;
 }
 
-- (void)configure
+- (void)configureWithAssetsLibrary:(ALAssetsLibrary *)library
 {
     // Create the Album TableView Controller.
     WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
     self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
     self.toolbar.barStyle = UIBarStyleBlackTranslucent;
     [self pushViewController:albumTableViewController animated:NO];
-//        ALAssetsLibrary *library = (assetsLibrary) ?: [[ALAssetsLibrary alloc] init];
-    self.assetPickerState.assetsLibrary = nil;
+    self.assetPickerState.assetsLibrary = library;
     albumTableViewController.assetPickerState = self.assetPickerState;
 }
 
@@ -64,9 +63,7 @@
 {
     self = [super init];
     if (self) {
-		[self configure];
-        self.assetPickerState.assetsLibrary = nil;
-        [(WSAlbumTableViewController *)[self.viewControllers objectAtIndex:0] setAssetPickerState:self.assetPickerState];
+		[self configureWithAssetsLibrary:assetsLibrary];
     }
     
     return self;
