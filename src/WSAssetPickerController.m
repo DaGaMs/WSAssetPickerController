@@ -38,19 +38,33 @@
 
 #pragma mark - Initialization
 
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)assetsLibrary
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder])
+    {
+        [self configure];
+    }
+    
+    return self;
+}
+
+- (void)configure
 {
     // Create the Album TableView Controller.
     WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
+    self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+    self.toolbar.barStyle = UIBarStyleBlackTranslucent;
     
+//        ALAssetsLibrary *library = (assetsLibrary) ?: [[ALAssetsLibrary alloc] init];
+    self.assetPickerState.assetsLibrary = assetsLibrary;
+    albumTableViewController.assetPickerState = self.assetPickerState;
+}
+
+- (id)initWithAssetsLibrary:(ALAssetsLibrary *)assetsLibrary
+{
     self = [super initWithRootViewController:albumTableViewController];
     if (self) {
-        self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-        self.toolbar.barStyle = UIBarStyleBlackTranslucent;
-        
-//        ALAssetsLibrary *library = (assetsLibrary) ?: [[ALAssetsLibrary alloc] init];
-        self.assetPickerState.assetsLibrary = assetsLibrary;
-        albumTableViewController.assetPickerState = self.assetPickerState;
+		[self configure];
     }
     
     return self;
