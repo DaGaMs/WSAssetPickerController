@@ -22,6 +22,9 @@
 #import "WSAlbumTableViewController.h"
 #import <AssetsLibrary/AssetsLibrary.h>
 
+#define STATE_KEY @"state"
+#define SELECTED_COUNT_KEY @"selectedCount"
+
 @interface WSAssetPickerController ()
 @property (nonatomic, strong) WSAssetPickerState *assetPickerState;
 @property (nonatomic, readwrite) NSUInteger selectedCount;
@@ -33,17 +36,21 @@
 
 @dynamic selectedAssets;
 
-@synthesize assetPickerState = _assetPickerState;
-@synthesize selectedCount = _selectedCount;
-@synthesize originalStatusBarStyle = _originalStatusBarStyle;
-
-
 #pragma mark - Initialization
-- (id)initWithCoder:(NSCoder *)aDecoder
+
+- (id)initWithAssetsLibrary:(ALAssetsLibrary *)assetsLibrary
 {
-    if (self = [super initWithCoder:aDecoder])
-    {
-        [self configure];
+    // Create the Album TableView Controller.
+    WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
+    
+    self = [super initWithRootViewController:albumTableViewController];
+    if (self) {
+        self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+        self.toolbar.barStyle = UIBarStyleBlackTranslucent;
+        
+//        ALAssetsLibrary *library = (assetsLibrary) ?: [[ALAssetsLibrary alloc] init];
+        self.assetPickerState.assetsLibrary = assetsLibrary;
+        albumTableViewController.assetPickerState = self.assetPickerState;
     }
     
     return self;
@@ -51,25 +58,14 @@
 
 - (id)initWithDelegate:(id <WSAssetPickerControllerDelegate>)delegate;
 {
-    if ((self = [super init])) {
-        [self configure];
+    self = [[[self class] alloc] initWithAssetsLibrary:nil];
+    if (self) {
         self.delegate = delegate;
     }
-    
     return self;
 }
 
-- (void)configure
-{
-    WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
-    albumTableViewController.assetPickerState = self.assetPickerState;
-    [self pushViewController:albumTableViewController animated:NO]; // set root view
-    self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-    self.toolbar.barStyle = UIBarStyleBlackTranslucent;
-}
-
-#define STATE_KEY @"state"
-#define SELECTED_COUNT_KEY @"selectedCount"
+#pragma mark - Accessors -
 
 - (WSAssetPickerState *)assetPickerState
 {
@@ -78,6 +74,21 @@
     }
     return _assetPickerState;
 }
+
+- (void)setSelectionLimit:(NSInteger)selectionLimit
+{
+    if (_selectionLimit != selectionLimit) {
+        _selectionLimit = selectionLimit;
+        self.assetPickerState.selectionLimit = _selectionLimit;
+    }
+}
+
+- (NSArray *)selectedAssets
+{
+    return self.assetPickerState.selectedAssets;
+}
+
+#pragma mark - Overrides -
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -113,12 +124,16 @@
         id <WSAssetPickerControllerDelegate> delegate = (id <WSAssetPickerControllerDelegate>)self.delegate;
         
         if (WSAssetPickerStatePickingCancelled == self.assetPickerState.state) {
-            if ([delegate conformsToProtocol:@protocol(WSAssetPickerControllerDelegate)]) {
+            if ([delegate respondsToSelector:@selector(assetPickerControllerDidCancel:)]) {
                 [delegate assetPickerControllerDidCancel:self];
             }
         } else if (WSAssetPickerStatePickingDone == self.assetPickerState.state) {
-            if ([delegate conformsToProtocol:@protocol(WSAssetPickerControllerDelegate)]) {
+            if ([delegate respondsToSelector:@selector(assetPickerController:didFinishPickingMediaWithAssets:)]) {
                 [delegate assetPickerController:self didFinishPickingMediaWithAssets:self.assetPickerState.selectedAssets];
+            }
+        } else if (WSAssetPickerStateSelectionLimitReached == self.assetPickerState.state) {
+            if ([delegate respondsToSelector:@selector(assetPickerControllerDidLimitSelection:)]) {
+                [delegate assetPickerControllerDidLimitSelection:self];
             }
         }
     } else if ([SELECTED_COUNT_KEY isEqualToString:keyPath]) {

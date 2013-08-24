@@ -124,9 +124,7 @@
     // (e.g. if user closes, opens Photos and deletes/takes a photo, we'll get out of range/other error when they come back.
     // IDEA: Perhaps the best solution, since this is a modal controller, is to close the modal controller.
     
-    dispatch_queue_t enumQ = dispatch_queue_create("AssetEnumeration", NULL);
-    
-    dispatch_async(enumQ, ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [self.assetsGroup enumerateAssetsWithOptions:NSEnumerationReverse usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
             
@@ -150,12 +148,7 @@
             
         }];
     });
-    
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
-    dispatch_release(enumQ);
-#endif
 
-    
     [self.tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.5];
 }
 
@@ -168,6 +161,24 @@
 
 
 #pragma mark - WSAssetsTableViewCellDelegate Methods
+
+- (BOOL)assetsTableViewCell:(WSAssetsTableViewCell *)cell shouldSelectAssetAtColumn:(NSUInteger)column
+{
+    BOOL shouldSelectAsset = (self.assetPickerState.selectionLimit == 0 ||
+                              (self.assetPickerState.selectedCount < self.assetPickerState.selectionLimit));
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    NSUInteger assetIndex = indexPath.row * self.assetsPerRow + column;
+    
+    WSAssetWrapper *assetWrapper = [self.fetchedAssets objectAtIndex:assetIndex];
+    
+    if ((shouldSelectAsset == NO) && (assetWrapper.isSelected == NO))
+        self.assetPickerState.state = WSAssetPickerStateSelectionLimitReached;
+    else
+        self.assetPickerState.state = WSAssetPickerStatePickingAssets;
+    
+    return shouldSelectAsset;
+}
 
 - (void)assetsTableViewCell:(WSAssetsTableViewCell *)cell didSelectAsset:(BOOL)selected atColumn:(NSUInteger)column
 {
