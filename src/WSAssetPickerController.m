@@ -54,17 +54,19 @@
     WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
     self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
     self.toolbar.barStyle = UIBarStyleBlackTranslucent;
-    
+    [self pushViewController:albumTableViewController animated:NO];
 //        ALAssetsLibrary *library = (assetsLibrary) ?: [[ALAssetsLibrary alloc] init];
-    self.assetPickerState.assetsLibrary = assetsLibrary;
+    self.assetPickerState.assetsLibrary = nil;
     albumTableViewController.assetPickerState = self.assetPickerState;
 }
 
 - (id)initWithAssetsLibrary:(ALAssetsLibrary *)assetsLibrary
 {
-    self = [super initWithRootViewController:albumTableViewController];
+    self = [super init];
     if (self) {
 		[self configure];
+        self.assetPickerState.assetsLibrary = nil;
+        [(WSAlbumTableViewController *)[self.viewControllers objectAtIndex:0] setAssetPickerState:self.assetPickerState];
     }
     
     return self;
