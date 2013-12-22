@@ -38,32 +38,12 @@
 
 #pragma mark - Initialization
 
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-    if (self = [super initWithCoder:aDecoder])
-    {
-        [self configureWithAssetsLibrary:[ALAssetsLibrary new]];
-    }
-    
-    return self;
-}
-
-- (void)configureWithAssetsLibrary:(ALAssetsLibrary *)library
-{
-    // Create the Album TableView Controller.
-    WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
-    self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-    self.toolbar.barStyle = UIBarStyleBlackTranslucent;
-    [self pushViewController:albumTableViewController animated:NO];
-    self.assetPickerState.assetsLibrary = library;
-    albumTableViewController.assetPickerState = self.assetPickerState;
-}
-
 - (id)initWithAssetsLibrary:(ALAssetsLibrary *)assetsLibrary
 {
     self = [super init];
     if (self) {
-		[self configureWithAssetsLibrary:assetsLibrary];
+        [self commonInit];
+        self.assetPickerState.assetsLibrary = assetsLibrary;
     }
     
     return self;
@@ -76,6 +56,30 @@
         self.delegate = delegate;
     }
     return self;
+}
+
+- (void)commonInit
+{
+    WSAlbumTableViewController *albumTableViewController = [[WSAlbumTableViewController alloc] initWithStyle:UITableViewStylePlain];
+    [self setViewControllers:@[albumTableViewController] animated:NO];
+    self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+    self.toolbar.barStyle = UIBarStyleBlackTranslucent;
+    albumTableViewController.assetPickerState = self.assetPickerState;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self commonInit];
+    }
+    return self;
+}
+
+- (void)setAssetsLibrary:(ALAssetsLibrary *)assetsLibrary
+{
+    NSParameterAssert(assetsLibrary);
+    self.assetPickerState.assetsLibrary = assetsLibrary;
 }
 
 #pragma mark - Accessors -
@@ -106,6 +110,9 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    NSAssert(self.assetPickerState.assetsLibrary, @"An assets library must be provided.");
+    NSAssert(self.delegate, @"A delegate must be provided");
     
     self.originalStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     
